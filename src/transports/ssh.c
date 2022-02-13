@@ -235,7 +235,7 @@ static int ssh_stream_alloc(
 
 static int ssh_agent_auth(LIBSSH2_SESSION *session, git_credential_ssh_key *c) {
 	int rc = LIBSSH2_ERROR_NONE;
-
+	int found = 0;
 	struct libssh2_agent_publickey *curr, *prev = NULL;
 
 	LIBSSH2_AGENT *agent = libssh2_agent_init(session);
@@ -243,21 +243,40 @@ static int ssh_agent_auth(LIBSSH2_SESSION *session, git_credential_ssh_key *c) {
 	if (agent == NULL)
 		return -1;
 
+#ifdef HAVE_LIBSSH2_AGENT_BACKEND_API
+	int agent_idx = 0;
+	for (agent_idx = 0; (agent_idx < libssh2_agent_get_backend_list_size()) && (found == 0); agent_idx++)
+	{
+		libssh2_agent_set_backend_idx(agent, agent_idx);
+#endif
+
 	rc = libssh2_agent_connect(agent);
 
 	if (rc != LIBSSH2_ERROR_NONE)
+#ifndef HAVE_LIBSSH2_AGENT_BACKEND_API
 		goto shutdown;
+#else
+		continue;
+#endif
 
 	rc = libssh2_agent_list_identities(agent);
 
 	if (rc != LIBSSH2_ERROR_NONE)
+#ifndef HAVE_LIBSSH2_AGENT_BACKEND_API
 		goto shutdown;
+#else
+		continue;
+#endif
 
 	while (1) {
 		rc = libssh2_agent_get_identity(agent, &curr, prev);
 
 		if (rc < 0)
+#ifndef HAVE_LIBSSH2_AGENT_BACKEND_API
 			goto shutdown;
+#else
+			break;
+#endif
 
 		/* rc is set to 1 whenever the ssh agent ran out of keys to check.
 		 * Set the error code to authentication failure rather than erroring
@@ -265,16 +284,26 @@ static int ssh_agent_auth(LIBSSH2_SESSION *session, git_credential_ssh_key *c) {
 		 */
 		if (rc == 1) {
 			rc = LIBSSH2_ERROR_AUTHENTICATION_FAILED;
+#ifndef HAVE_LIBSSH2_AGENT_BACKEND_API
 			goto shutdown;
+#else
+			break;
+#endif
 		}
 
 		rc = libssh2_agent_userauth(agent, c->username, curr);
 
-		if (rc == 0)
+		if (rc == 0) {
+			found = 1;
 			break;
+		}
 
 		prev = curr;
 	}
+
+#ifdef HAVE_LIBSSH2_AGENT_BACKEND_API
+	}
+#endif
 
 shutdown:
 
