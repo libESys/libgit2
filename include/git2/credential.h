@@ -278,6 +278,19 @@ GIT_EXTERN(int) git_credential_ssh_key_from_agent(
 	git_credential **out,
 	const char *username);
 
+/**
+ * Create a new ssh key credential object used for querying a custom ssh-agent.
+ * The supplied credential parameter will be internally duplicated.
+ *
+ * @param out The newly created credential object.
+ * @param username username to use to authenticate
+ * @return 0 for success or an error code for failure
+ */
+GIT_EXTERN(int) git_credential_ssh_key_from_custom_agent(
+	git_credential **out,
+	const char *username,
+	const char *agent_identity_path);
+
 typedef int GIT_CALLBACK(git_credential_sign_cb)(
 	LIBSSH2_SESSION *session,
 	unsigned char **sig, size_t *sig_len,

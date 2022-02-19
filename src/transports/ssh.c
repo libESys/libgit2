@@ -243,6 +243,9 @@ static int ssh_agent_auth(LIBSSH2_SESSION *session, git_credential_ssh_key *c) {
 	if (agent == NULL)
 		return -1;
 
+	if (c->agent_identity_path)
+		libssh2_agent_set_identity_path(agent, (const char *)c->agent_identity_path);
+
 	rc = libssh2_agent_connect(agent);
 
 	if (rc != LIBSSH2_ERROR_NONE)
