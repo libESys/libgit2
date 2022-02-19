@@ -51,6 +51,7 @@ struct git_credential_ssh_key {
 	char *publickey;       /**< The path to a public key */
 	char *privatekey;      /**< The path to a private key */
 	char *passphrase;      /**< Passphrase to decrypt the private key */
+	char *agent_identity_path;    /**< Agent custom identity path to use */
 };
 
 /**
