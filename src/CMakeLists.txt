@@ -262,9 +262,11 @@ target_link_libraries(git2 ${LIBGIT2_SYSTEM_LIBS})
 target_include_directories(git2 PUBLIC ${PROJECT_SOURCE_DIR}/include)
 
 set_target_properties(git2 PROPERTIES C_STANDARD 90)
+if(SET_OUTPUT_DIRECTORY)
 set_target_properties(git2 PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
 set_target_properties(git2 PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
 set_target_properties(git2 PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
+endif()
 
 # Workaround for Cmake bug #0011240 (see http://public.kitware.com/Bug/view.php?id=11240)
 # Win64+MSVC+static libs = linker error

@@ -42,6 +42,7 @@ option(DEBUG_STRICT_OPEN       "Enable path validation in open"                 
 option(SONAME                  "Set the (SO)VERSION of the target"                      ON)
    set(LIBGIT2_FILENAME        "git2" CACHE STRING "Name of the produced binary")
 option(DEPRECATE_HARD          "Do not include deprecated functions in the library"    OFF)
+option(SET_OUTPUT_DIRECTORY    "Set CMake *_OUTPUT_DIRECTORY properties"                ON)
 
 # Compilation options
 option(ENABLE_WERROR           "Enable compilation with -Werror"                       OFF)
